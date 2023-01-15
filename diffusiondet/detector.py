@@ -265,7 +265,7 @@ class DiffusionDet(nn.Module):
             result = Instances(images.image_sizes[0])
             result.pred_boxes = Boxes(box_pred_per_image)
 
-            bbox_init = torch.tensor([box_pred_per_image])
+            bbox_init = box_pred_per_image.unsqueeze()
             print(box_pred_per_image.shape)
 
             result.scores = scores_per_image
