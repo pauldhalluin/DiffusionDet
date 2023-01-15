@@ -264,30 +264,34 @@ class DiffusionDet(nn.Module):
                 labels_per_image = labels_per_image[keep]
             result = Instances(images.image_sizes[0])
             result.pred_boxes = Boxes(box_pred_per_image)
+
+            bbox_init = result.pred_boxes
+
             result.scores = scores_per_image
             result.pred_classes = labels_per_image
             results = [result]
+
         else:
             output = {'pred_logits': outputs_class[-1], 'pred_boxes': outputs_coord[-1]}
             box_cls = output["pred_logits"]
             box_pred = output["pred_boxes"]
             results = self.inference(box_cls, box_pred, images.image_sizes)
         
-        score_per_image, box_per_image = outputs_class[-1][0], outputs_coord[-1][0]
-        threshold = 0.5
-        score_per_image = torch.sigmoid(score_per_image)
-        value, _ = torch.max(score_per_image, -1, keepdim=False)
-        keep_idx = value > threshold
-        num_remain = torch.sum(keep_idx)
+            score_per_image, box_per_image = outputs_class[-1][0], outputs_coord[-1][0]
+            threshold = 0.5
+            score_per_image = torch.sigmoid(score_per_image)
+            value, _ = torch.max(score_per_image, -1, keepdim=False)
+            keep_idx = value > threshold
+            num_remain = torch.sum(keep_idx)
 
-        bbox_start = box_pred[:, keep_idx, :]
+            bbox_init = box_pred[:, keep_idx, :]
 
-        bbox_start = bbox_start / images_whwh[:, None, :]
-        bbox_start = box_xyxy_to_cxcywh(bbox_start)
-        bbox_start = (bbox_start * 2 - 1.) * self.scale
-        bbox_start = torch.clamp(bbox_start, min=-1 * self.scale, max=self.scale)
+        bbox_init = bbox_init / images_whwh[:, None, :]
+        bbox_init = box_xyxy_to_cxcywh(bbox_init)
+        bbox_init = (bbox_init * 2 - 1.) * self.scale
+        bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
 
-        self.init_bbox = bbox_start
+        self.init_bbox = bbox_init
 
         if do_postprocess:
             processed_results = []
