@@ -292,6 +292,7 @@ class DiffusionDet(nn.Module):
         bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
 
         self.init_bbox = bbox_init
+        print(self.init_bbox.shape[1])
 
         if do_postprocess:
             processed_results = []
