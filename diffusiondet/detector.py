@@ -242,7 +242,7 @@ class DiffusionDet(nn.Module):
                   c * pred_noise + \
                   sigma * noise
 
-            if self.box_renewal and time>0:  # filter
+            if self.box_renewal:  # filter
                 # replenish with randn boxes
                 img = torch.cat((img, torch.randn(1, self.num_proposals - num_remain, 4, device=img.device)), dim=1)
             if self.use_ensemble and self.sampling_timesteps > 1:
@@ -273,12 +273,12 @@ class DiffusionDet(nn.Module):
             box_pred = output["pred_boxes"]
             results = self.inference(box_cls, box_pred, images.image_sizes)
         
-        bbox_start = box_pred / images_whwh[:, None, :]
+        bbox_start = results.pred_boxes / images_whwh[:, None, :]
         bbox_start = box_xyxy_to_cxcywh(bbox_start)
         bbox_start = (bbox_start * 2 - 1.) * self.scale
         bbox_start = torch.clamp(bbox_start, min=-1 * self.scale, max=self.scale)
+
         self.init_bbox = bbox_start
-        print(bbox_start.shape[1])
 
         if do_postprocess:
             processed_results = []
