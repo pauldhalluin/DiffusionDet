@@ -200,7 +200,8 @@ class DiffusionDet(nn.Module):
             img = torch.randn(shape, device=self.device)
         else:
             if self.num_proposals - self.init_bbox.shape[1] > 0:
-                img = torch.stack((self.init_bbox, torch.randn(shape, device=self.device)))
+                shape_ = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
+                img = torch.cat((self.init_bbox, torch.randn(shape_, device=img.device)), dim=1)
             else:
                 img = self.init_bbox
 
@@ -241,7 +242,7 @@ class DiffusionDet(nn.Module):
                   c * pred_noise + \
                   sigma * noise
 
-            if self.box_renewal:  # filter
+            if self.box_renewal and time>0:  # filter
                 # replenish with randn boxes
                 img = torch.cat((img, torch.randn(1, self.num_proposals - num_remain, 4, device=img.device)), dim=1)
             if self.use_ensemble and self.sampling_timesteps > 1:
