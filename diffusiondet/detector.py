@@ -203,7 +203,7 @@ class DiffusionDet(nn.Module):
                 print(self.num_proposals)
                 print(self.init_bbox.shape)
                 shape_ = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
-                print(torch.randn(shape_, device=self.device))
+                print(torch.randn(shape_, device=self.device).shape)
                 img = torch.cat((self.init_bbox, torch.randn(shape_, device=self.device)), dim=1)
             else:
                 img = self.init_bbox
@@ -296,7 +296,6 @@ class DiffusionDet(nn.Module):
         bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
 
         self.init_bbox = bbox_init
-        print(self.init_bbox.shape[1])
 
         if do_postprocess:
             processed_results = []
