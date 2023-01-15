@@ -98,7 +98,7 @@ class DiffusionDet(nn.Module):
         self.self_condition = False
         self.scale = cfg.MODEL.DiffusionDet.SNR_SCALE
         self.box_renewal = True
-        self.use_ensemble = True
+        self.use_ensemble = False
 
         self.register_buffer('betas', betas)
         self.register_buffer('alphas_cumprod', alphas_cumprod)
