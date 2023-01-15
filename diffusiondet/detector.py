@@ -199,8 +199,10 @@ class DiffusionDet(nn.Module):
         if self.init_bbox == None:
             img = torch.randn(shape, device=self.device)
         else:
-            shape = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
-            img = torch.stack((self.init_bbox, torch.randn(shape, device=self.device)))
+            if self.num_proposals - self.init_bbox.shape[1] > 0:
+                img = torch.stack((self.init_bbox, torch.randn(shape, device=self.device)))
+            else:
+                img = self.init_bbox
 
         ensemble_score, ensemble_label, ensemble_coord = [], [], []
         x_start = None
