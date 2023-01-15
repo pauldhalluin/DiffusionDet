@@ -273,6 +273,8 @@ class DiffusionDet(nn.Module):
             box_pred = output["pred_boxes"]
             results = self.inference(box_cls, box_pred, images.image_sizes)
         
+        print(len(results))
+        print(results[0].shape)
         bbox_start = results.pred_boxes / images_whwh[:, None, :]
         bbox_start = box_xyxy_to_cxcywh(bbox_start)
         bbox_start = (bbox_start * 2 - 1.) * self.scale
