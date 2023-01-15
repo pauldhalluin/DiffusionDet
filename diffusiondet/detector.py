@@ -161,6 +161,8 @@ class DiffusionDet(nn.Module):
         self.normalizer = lambda x: (x - pixel_mean) / pixel_std
         self.to(self.device)
 
+        self.init_bbox = None
+
     def predict_noise_from_start(self, x_t, t, x0):
         return (
                 (extract(self.sqrt_recip_alphas_cumprod, t, x_t.shape) * x_t - x0) /
@@ -194,7 +196,11 @@ class DiffusionDet(nn.Module):
         times = list(reversed(times.int().tolist()))
         time_pairs = list(zip(times[:-1], times[1:]))  # [(T-1, T-2), (T-2, T-3), ..., (1, 0), (0, -1)]
 
-        img = torch.randn(shape, device=self.device)
+        if self.init_bbox == None:
+            img = torch.randn(shape, device=self.device)
+        else:
+            shape = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
+            img = torch.stack((self.init_bbox, torch.randn(shape, device=self.device)))
 
         ensemble_score, ensemble_label, ensemble_coord = [], [], []
         x_start = None
@@ -253,7 +259,6 @@ class DiffusionDet(nn.Module):
                 box_pred_per_image = box_pred_per_image[keep]
                 scores_per_image = scores_per_image[keep]
                 labels_per_image = labels_per_image[keep]
-
             result = Instances(images.image_sizes[0])
             result.pred_boxes = Boxes(box_pred_per_image)
             result.scores = scores_per_image
@@ -264,6 +269,13 @@ class DiffusionDet(nn.Module):
             box_cls = output["pred_logits"]
             box_pred = output["pred_boxes"]
             results = self.inference(box_cls, box_pred, images.image_sizes)
+        
+        bbox_start = box_pred / images_whwh[:, None, :]
+        bbox_start = box_xyxy_to_cxcywh(bbox_start)
+        bbox_start = (bbox_start * 2 - 1.) * self.scale
+        bbox_start = torch.clamp(bbox_start, min=-1 * self.scale, max=self.scale)
+        self.init_bbox = bbox_start
+
         if do_postprocess:
             processed_results = []
             for results_per_image, input_per_image, image_size in zip(results, batched_inputs, images.image_sizes):
