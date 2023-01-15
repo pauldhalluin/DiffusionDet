@@ -201,7 +201,7 @@ class DiffusionDet(nn.Module):
         else:
             if self.num_proposals - self.init_bbox.shape[1] > 0:
                 shape_ = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
-                img = torch.cat((self.init_bbox, torch.randn(shape_, device=self.device)), dim=1)
+                img = torch.cat((self.init_bbox, torch.randn(shape_, device=self.device)), dim=0)
             else:
                 img = self.init_bbox
 
@@ -266,7 +266,7 @@ class DiffusionDet(nn.Module):
             result.pred_boxes = Boxes(box_pred_per_image)
 
             bbox_init = box_pred_per_image.unsqueeze(0)
-            print(box_pred_per_image.shape)
+            print(bbox_init.shape)
 
             result.scores = scores_per_image
             result.pred_classes = labels_per_image
