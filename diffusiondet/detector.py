@@ -265,6 +265,7 @@ class DiffusionDet(nn.Module):
             result = Instances(images.image_sizes[0])
             result.pred_boxes = Boxes(box_pred_per_image)
 
+            print(type(box_pred_per_image))
             bbox_init = box_pred_per_image
 
             result.scores = scores_per_image
