@@ -273,9 +273,16 @@ class DiffusionDet(nn.Module):
             box_pred = output["pred_boxes"]
             results = self.inference(box_cls, box_pred, images.image_sizes)
         
-        print(len(results))
-        print(results[0].shape)
-        bbox_start = results.pred_boxes / images_whwh[:, None, :]
+        score_per_image, box_per_image = outputs_class[-1][0], outputs_coord[-1][0]
+        threshold = 0.5
+        score_per_image = torch.sigmoid(score_per_image)
+        value, _ = torch.max(score_per_image, -1, keepdim=False)
+        keep_idx = value > threshold
+        num_remain = torch.sum(keep_idx)
+
+        bbox_start = box_pred[:, keep_idx, :]
+
+        bbox_start = bbox_start / images_whwh[:, None, :]
         bbox_start = box_xyxy_to_cxcywh(bbox_start)
         bbox_start = (bbox_start * 2 - 1.) * self.scale
         bbox_start = torch.clamp(bbox_start, min=-1 * self.scale, max=self.scale)
