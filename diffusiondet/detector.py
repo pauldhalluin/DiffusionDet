@@ -202,9 +202,7 @@ class DiffusionDet(nn.Module):
             if self.num_proposals - self.init_bbox.shape[1] > 0:
                 shape_ = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
                 new_rand_boxes = torch.randn(shape_, device=self.device)
-                print(self.init_bbox.shape)
                 img = torch.cat((self.init_bbox, new_rand_boxes), dim=1)
-                print(img.shape)
                 assert 0==1
             else:
                 img = self.init_bbox
