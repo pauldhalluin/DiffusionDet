@@ -196,7 +196,7 @@ class DiffusionDet(nn.Module):
         times = list(reversed(times.int().tolist()))
         time_pairs = list(zip(times[:-1], times[1:]))  # [(T-1, T-2), (T-2, T-3), ..., (1, 0), (0, -1)]
 
-        if self.init_bbox == None:
+        if self.init_bbox is None:
             img = torch.randn(shape, device=self.device)
         else:
             if self.num_proposals - self.init_bbox.shape[1] > 0:
@@ -267,7 +267,7 @@ class DiffusionDet(nn.Module):
             result.pred_boxes = Boxes(box_pred_per_image)
 
             # bbox_init = box_pred_per_image.unsqueeze(0)
-            bbox_init = torch.randn(shape, device=self.device)
+            bbox_init = torch.randn(shape, device=self.device) # for it not to crash
 
             result.scores = scores_per_image
             result.pred_classes = labels_per_image
@@ -288,10 +288,15 @@ class DiffusionDet(nn.Module):
 
             bbox_init = box_pred[:, keep_idx, :]
 
+        print(bbox_init)
+
         bbox_init = bbox_init / images_whwh[:, None, :]
         bbox_init = box_xyxy_to_cxcywh(bbox_init)
         bbox_init = (bbox_init * 2 - 1.) * self.scale
         bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
+
+        print(bbox_init)
+        assert 0==1
 
         self.init_bbox = bbox_init
 
