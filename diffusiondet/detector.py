@@ -293,6 +293,9 @@ class DiffusionDet(nn.Module):
         bbox_init = bbox_init / images_whwh[:, None, :]
         bbox_init = box_xyxy_to_cxcywh(bbox_init)
         bbox_init = (bbox_init * 2 - 1.) * self.scale
+
+        print(bbox_init)
+
         bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
 
         print(bbox_init)
