@@ -98,7 +98,7 @@ class DiffusionDet(nn.Module):
         self.self_condition = False
         self.scale = cfg.MODEL.DiffusionDet.SNR_SCALE
         self.box_renewal = True
-        self.use_ensemble = False
+        self.use_ensemble = True
 
         self.register_buffer('betas', betas)
         self.register_buffer('alphas_cumprod', alphas_cumprod)
@@ -200,11 +200,9 @@ class DiffusionDet(nn.Module):
             img = torch.randn(shape, device=self.device)
         else:
             if self.num_proposals - self.init_bbox.shape[1] > 0:
-                # print(self.num_proposals)
-                # print(self.init_bbox.shape)
                 shape_ = (batch, self.num_proposals - self.init_bbox.shape[1], 4)
-                # print(torch.randn(shape_, device=self.device).shape)
-                img = torch.cat((self.init_bbox, torch.randn(shape_, device=self.device)), dim=1)
+                new_rand_boxes = torch.randn(shape_, device=self.device)
+                img = torch.cat((self.init_bbox, new_rand_boxes), dim=1)
             else:
                 img = self.init_bbox
 
@@ -268,8 +266,8 @@ class DiffusionDet(nn.Module):
             result = Instances(images.image_sizes[0])
             result.pred_boxes = Boxes(box_pred_per_image)
 
-            bbox_init = box_pred_per_image.unsqueeze(0)
-            # print(bbox_init.shape)
+            # bbox_init = box_pred_per_image.unsqueeze(0)
+            bbox_init = torch.randn(shape, device=self.device)
 
             result.scores = scores_per_image
             result.pred_classes = labels_per_image
