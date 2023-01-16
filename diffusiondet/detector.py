@@ -287,10 +287,11 @@ class DiffusionDet(nn.Module):
             num_remain = torch.sum(keep_idx)
 
             bbox_init = box_pred[:, keep_idx, :]
+            new_images_whwh = images_whwh[:, keep_idx, :]
 
         print(bbox_init)
 
-        bbox_init = bbox_init / images_whwh[:, None, :]
+        bbox_init = bbox_init / new_images_whwh[:, None, :]
         bbox_init = box_xyxy_to_cxcywh(bbox_init)
         bbox_init = (bbox_init * 2 - 1.) * self.scale
         bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
