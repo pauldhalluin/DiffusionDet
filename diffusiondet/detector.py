@@ -279,33 +279,22 @@ class DiffusionDet(nn.Module):
             box_pred = output["pred_boxes"]
             results = self.inference(box_cls, box_pred, images.image_sizes)
         
-            score_per_image, box_per_image = outputs_class[-1][0], outputs_coord[-1][0]
-            threshold = 0.5
-            score_per_image = torch.sigmoid(score_per_image)
-            value, _ = torch.max(score_per_image, -1, keepdim=False)
-            keep_idx = value > threshold
-            num_remain = torch.sum(keep_idx)
+            # score_per_image, box_per_image = outputs_class[-1][0], outputs_coord[-1][0]
+            # threshold = 0.5
+            # score_per_image = torch.sigmoid(score_per_image)
+            # value, _ = torch.max(score_per_image, -1, keepdim=False)
+            # keep_idx = value > threshold
+            # num_remain = torch.sum(keep_idx)
 
-            bbox_init = box_pred[:, keep_idx, :]
-
-        # print(bbox_init)
+            # bbox_init = box_pred[:, keep_idx, :]
 
         # bbox_init = bbox_init / images_whwh[:, None, :]
         # bbox_init = box_xyxy_to_cxcywh(bbox_init)
         # bbox_init = (bbox_init * 2 - 1.) * self.scale
-
-        # print(bbox_init)
-
         # bbox_init = torch.clamp(bbox_init, min=-1 * self.scale, max=self.scale)
+        # self.init_bbox = bbox_init
 
-        # print(bbox_init)
-
-        print(x_start.shape)
-        print(x_start)
-
-        assert 0==1
-
-        self.init_bbox = bbox_init
+        self.init_bbox = x_start
 
         if do_postprocess:
             processed_results = []
