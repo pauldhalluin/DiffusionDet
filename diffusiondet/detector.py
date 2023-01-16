@@ -267,7 +267,6 @@ class DiffusionDet(nn.Module):
             result.pred_boxes = Boxes(box_pred_per_image)
 
             # bbox_init = box_pred_per_image.unsqueeze(0)
-            bbox_init = torch.randn(shape, device=self.device) # for it not to crash
 
             result.scores = scores_per_image
             result.pred_classes = labels_per_image
