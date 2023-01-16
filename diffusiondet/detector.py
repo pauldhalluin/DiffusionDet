@@ -300,7 +300,9 @@ class DiffusionDet(nn.Module):
 
         # print(bbox_init)
 
+        print(x_start.shape)
         print(x_start)
+
         assert 0==1
 
         self.init_bbox = bbox_init
